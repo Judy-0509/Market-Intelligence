@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Market Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="brand">
+      <div class="brand__name">Market Intelligence</div>
+      <div class="brand__tag">Insight for Smart Decisions</div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="header-actions">
+      <div class="search">
+        <input id="search" type="text" placeholder="검색어를 입력하세요" />
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#8a8a90" stroke-width="2"/><path d="M21 21l-4-4" stroke="#8a8a90" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="bell">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 3a6 6 0 0 0-6 6v3.5L4.5 16h15L18 12.5V9a6 6 0 0 0-6-6Z" stroke="#3a3a3e" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.5 19a2.5 2.5 0 0 0 5 0" stroke="#3a3a3e" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <div class="bell__badge">1</div>
+      </div>
+      <div class="avatar">
+        <div class="avatar__img"></div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="#9a9aa0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- HOME VIEW -->
+    <div id="home-view">
+      <section class="hero">
+        <div class="hero__track" id="hero-track"></div>
+        <div class="hero__dots" id="hero-dots"></div>
+      </section>
+
+      <div class="main-grid">
+        <div>
+          <div class="section-head">
+            <h2>최신 리포트</h2>
+            <div class="chips" id="home-chips"></div>
+          </div>
+          <div class="cards" id="cards"></div>
+        </div>
+
+        <aside class="sidebar">
+          <div class="panel">
+            <div class="panel__head">
+              <h3>많이 본 리포트</h3>
+              <div class="panel__more">더보기
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="#b4b4ba" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+            <div id="ranking"></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <!-- REPORT VIEW -->
+    <div id="report-view" class="hidden">
+      <div class="report-page">
+        <div class="report-head">
+          <h1>리포트</h1>
+          <p>응용처별 최신 리서치 리포트를 한눈에 확인하세요.</p>
+        </div>
+        <div class="report-chips" id="report-chips"></div>
+        <div id="report-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
