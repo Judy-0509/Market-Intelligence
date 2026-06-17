@@ -9,15 +9,15 @@
   // ---------- SVG icons ----------
   var ICON = {
     eye: function (s) {
-      return '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="none">' +
-        '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" stroke="#b8b8be" stroke-width="1.6"/>' +
-        '<circle cx="12" cy="12" r="2.5" stroke="#b8b8be" stroke-width="1.6"/></svg>';
+      return '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
+        '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" stroke="#8a8a90" stroke-width="1.6"/>' +
+        '<circle cx="12" cy="12" r="2.5" stroke="#8a8a90" stroke-width="1.6"/></svg>';
     },
     bookmark: function (s, saved) {
       return saved
-        ? '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="' + ACCENT + '">' +
+        ? '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="' + ACCENT + '" aria-hidden="true">' +
             '<path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4.2L5 21V4a1 1 0 0 1 1-1Z"/></svg>'
-        : '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="none">' +
+        : '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
             '<path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4.2L5 21V4a1 1 0 0 1 1-1Z" stroke="#b4b4ba" stroke-width="1.6" stroke-linejoin="round"/></svg>';
     }
   };
@@ -78,14 +78,15 @@
   // ---------- State ----------
   var state = { activeNav: '홈', activeChip: '전체', reportChip: '전체', activeDot: 0, saved: {}, thumbIdx: {} };
   var timer = null;
+  var reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   var el = function (id) { return document.getElementById(id); };
 
   // ---------- Renderers ----------
   function renderNav() {
     el('nav').innerHTML = ['홈', '리포트'].map(function (label) {
       var active = state.activeNav === label;
-      return '<div class="nav__item' + (active ? ' is-active' : '') + '" data-nav="' + label + '">' +
-        label + (active ? '<div class="nav__underline"></div>' : '') + '</div>';
+      return '<button type="button" class="nav__item' + (active ? ' is-active' : '') + '" data-nav="' + label + '"' +
+        (active ? ' aria-current="page"' : '') + '>' + label + (active ? '<span class="nav__underline"></span>' : '') + '</button>';
     }).join('');
   }
 
@@ -93,7 +94,6 @@
     el('hero-track').innerHTML = heroSlides.map(function (h) {
       return '<div class="hero__slide" style="background:' + h.bg + ';">' +
           '<div class="hero__scrim"></div>' +
-          '<span class="hero__imglabel">' + h.image + '</span>' +
           '<div class="hero__content">' +
             '<div class="hero__eyebrow">오늘의 인사이트</div>' +
             '<h1 class="hero__title">' + h.title + '</h1>' +
@@ -113,7 +113,9 @@
 
   function renderDots() {
     el('hero-dots').innerHTML = [0, 1, 2, 3].map(function (i) {
-      return '<div class="hero__dot' + (state.activeDot === i ? ' is-active' : '') + '" data-dot="' + i + '"></div>';
+      var active = state.activeDot === i;
+      return '<button type="button" class="hero__dot' + (active ? ' is-active' : '') + '" data-dot="' + i + '"' +
+        ' aria-label="슬라이드 ' + (i + 1) + '"' + (active ? ' aria-current="true"' : '') + '></button>';
     }).join('');
   }
 
@@ -122,7 +124,11 @@
     renderDots();
   }
 
+  function stopTimer() { clearInterval(timer); }
+
   function startTimer() {
+    if (reduceMotion) return;
+    clearInterval(timer);
     timer = setInterval(function () {
       state.activeDot = (state.activeDot + 1) % 4;
       updateHero();
@@ -139,7 +145,8 @@
   function renderHomeChips() {
     el('home-chips').innerHTML = ['전체', '스마트폰', '오토', '휴머노이드'].map(function (label) {
       var active = state.activeChip === label;
-      return '<div class="chip' + (active ? ' is-active' : '') + '" data-homechip="' + label + '">' + label + '</div>';
+      return '<button type="button" class="chip' + (active ? ' is-active' : '') + '" data-homechip="' + label +
+        '" aria-pressed="' + active + '">' + label + '</button>';
     }).join('');
   }
 
@@ -152,15 +159,13 @@
       var idx = state.thumbIdx[c.id];
       var saved = !!state.saved[c.id];
       return '<div class="card">' +
-          '<div class="card__thumb" style="background:' + pool[idx] + ';">' +
-            '<span class="card__thumblabel">' + c.app + ' · img ' + (idx + 1) + '</span>' +
-          '</div>' +
+          '<div class="card__thumb" style="background:' + pool[idx] + ';"></div>' +
           '<div class="card__category">' + c.category + '</div>' +
           '<div class="card__title">' + c.title + '</div>' +
           '<div class="card__meta"><span>' + c.author + '</span><span>·</span><span>' + c.date + '</span></div>' +
           '<div class="card__foot">' +
             '<div class="tags">' + c.tags.map(function (t) { return '<span class="tag">' + t + '</span>'; }).join('') + '</div>' +
-            '<div class="bookmark" data-bookmark="' + c.id + '">' + ICON.bookmark(18, saved) + '</div>' +
+            '<button type="button" class="bookmark" data-bookmark="' + c.id + '" aria-label="북마크" aria-pressed="' + saved + '">' + ICON.bookmark(18, saved) + '</button>' +
           '</div>' +
         '</div>';
     }).join('');
@@ -180,7 +185,8 @@
   function renderReportChips() {
     el('report-chips').innerHTML = ['전체', 'Smartphone', 'Humanoid', 'Auto'].map(function (label) {
       var active = state.reportChip === label;
-      return '<div class="chip' + (active ? ' is-active' : '') + '" data-reportchip="' + label + '">' + label + '</div>';
+      return '<button type="button" class="chip' + (active ? ' is-active' : '') + '" data-reportchip="' + label +
+        '" aria-pressed="' + active + '">' + label + '</button>';
     }).join('');
   }
 
@@ -204,7 +210,7 @@
             '</div>' +
           '</div>' +
           '<div class="report-row__side">' +
-            '<div class="bookmark" data-bookmark="' + c.id + '">' + ICON.bookmark(20, saved) + '</div>' +
+            '<button type="button" class="bookmark" data-bookmark="' + c.id + '" aria-label="북마크" aria-pressed="' + saved + '">' + ICON.bookmark(20, saved) + '</button>' +
             '<span class="report-row__views">' + ICON.eye(14) + ' ' + c.views + '</span>' +
           '</div>' +
         '</div>';
@@ -251,6 +257,15 @@
     renderReportChips();
     renderReportList();
     updateView();
+
+    // Pause auto-advance while the user is hovering or keyboard-focused inside the hero.
+    var heroEl = document.querySelector('.hero');
+    if (heroEl) {
+      heroEl.addEventListener('mouseenter', stopTimer);
+      heroEl.addEventListener('mouseleave', startTimer);
+      heroEl.addEventListener('focusin', stopTimer);
+      heroEl.addEventListener('focusout', startTimer);
+    }
     startTimer();
   }
 
