@@ -1,27 +1,41 @@
-# Market Intelligence — static frontend served by nginx.
-# No build step: the site is vanilla HTML/CSS/JS.
-FROM nginx:1.27-alpine
+# syntax=docker/dockerfile:1
+# Market Intelligence — Next.js (App Router) full-stack, standalone output.
 
-LABEL org.opencontainers.image.title="market-intelligence" \
-      org.opencontainers.image.description="Market Intelligence research portal (static frontend)" \
-      org.opencontainers.image.source="https://github.com/judy-0509/market-intelligence"
+# ---------- deps ----------
+FROM node:20-alpine AS deps
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
 
-# Custom config: listens on 8080, logs to stdout/stderr, non-root friendly.
-COPY nginx.conf /etc/nginx/nginx.conf
+# ---------- builder ----------
+FROM node:20-alpine AS builder
+WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN npm run build
 
-# Static assets.
-COPY index.html styles.css app.js /usr/share/nginx/html/
+# ---------- runner ----------
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    PORT=3000 \
+    HOSTNAME=0.0.0.0 \
+    CONTENT_DIR=/app/content/reports
 
-# Prepare writable dirs and hand ownership to the unprivileged nginx user so the
-# container can run with USER nginx (uid 101) and even a read-only root fs + /tmp.
-RUN mkdir -p /tmp/client_temp /tmp/proxy_temp /tmp/fastcgi_temp /tmp/uwsgi_temp /tmp/scgi_temp \
-    && chown -R nginx:nginx /tmp /usr/share/nginx/html
+# Run as the unprivileged "node" user that ships with the base image.
+# Standalone build: minimal server + only the production deps it needs.
+COPY --from=builder --chown=node:node /app/public ./public
+COPY --from=builder --chown=node:node /app/.next/standalone ./
+COPY --from=builder --chown=node:node /app/.next/static ./.next/static
+# Ship the default reports; mount a volume here to add your own .md files.
+COPY --from=builder --chown=node:node /app/content ./content
 
-USER nginx
+USER node
+EXPOSE 3000
 
-EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=3s --start-period=8s --retries=3 \
+  CMD wget -q --spider http://127.0.0.1:3000/ || exit 1
 
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget -q --spider http://127.0.0.1:8080/healthz || exit 1
-
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["node", "server.js"]

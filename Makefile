@@ -1,17 +1,29 @@
-# Convenience targets for the Market Intelligence frontend container.
+# Convenience targets for the Market Intelligence (Next.js) container.
 IMAGE     ?= market-intelligence
 TAG       ?= latest
-HOST_PORT ?= 8080
+HOST_PORT ?= 3000
 
-.PHONY: build run stop logs sh push dev
+.PHONY: install dev build start docker-build run stop logs sh push
 
-build:            ## Build the Docker image
+install:          ## Install dependencies
+	npm install
+
+dev: install      ## Run the dev server (hot reload)
+	npm run dev
+
+build: install    ## Production build
+	npm run build
+
+start: build      ## Run the production server locally
+	npm start
+
+docker-build:     ## Build the Docker image
 	docker build -t $(IMAGE):$(TAG) .
 
-run: build        ## Build and run the container
-	docker run -d --name $(IMAGE) -p $(HOST_PORT):8080 \
-		--read-only --tmpfs /tmp --security-opt no-new-privileges \
-		$(IMAGE):$(TAG)
+run: docker-build ## Build and run the container
+	docker run -d --name $(IMAGE) -p $(HOST_PORT):3000 \
+		-v $(PWD)/content/reports:/app/content/reports:ro \
+		--security-opt no-new-privileges $(IMAGE):$(TAG)
 	@echo "→ http://localhost:$(HOST_PORT)"
 
 stop:             ## Stop and remove the container
@@ -27,6 +39,3 @@ push:             ## Push image to a registry (set REGISTRY=registry.corp.exampl
 	@test -n "$(REGISTRY)" || (echo "set REGISTRY=..." && exit 1)
 	docker tag $(IMAGE):$(TAG) $(REGISTRY)/$(IMAGE):$(TAG)
 	docker push $(REGISTRY)/$(IMAGE):$(TAG)
-
-dev:              ## Serve locally without Docker (python http server)
-	python -m http.server $(HOST_PORT)

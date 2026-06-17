@@ -1,23 +1,27 @@
 # Market Intelligence — local / on-prem deployment.
 # Usage:
 #   docker compose up -d --build
-#   open http://localhost:8080   (override host port with HOST_PORT=9000 docker compose up)
+#   open http://localhost:3000   (override with HOST_PORT=8080 docker compose up -d)
+#
+# Drop new brokerage report .md files into ./content/reports on the host and they
+# appear without rebuilding (pages read the content dir on every request).
 services:
   web:
     build: .
     image: market-intelligence:latest
     container_name: market-intelligence
     ports:
-      - "${HOST_PORT:-8080}:8080"
+      - "${HOST_PORT:-3000}:3000"
+    environment:
+      - CONTENT_DIR=/app/content/reports
+    volumes:
+      - ./content/reports:/app/content/reports:ro
     restart: unless-stopped
-    read_only: true
-    tmpfs:
-      - /tmp
     security_opt:
       - no-new-privileges:true
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8080/healthz"]
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:3000/"]
       interval: 30s
       timeout: 3s
       retries: 3
-      start_period: 5s
+      start_period: 8s
