@@ -1,0 +1,15 @@
+# Keep the build context minimal — only ship the static frontend.
+.git
+.github
+.gitignore
+.dockerignore
+Dockerfile
+docker-compose.yml
+Makefile
+README.md
+*.md
+node_modules
+npm-debug.log
+.DS_Store
+.vscode
+.idea

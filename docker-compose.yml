@@ -1,0 +1,23 @@
+# Market Intelligence — local / on-prem deployment.
+# Usage:
+#   docker compose up -d --build
+#   open http://localhost:8080   (override host port with HOST_PORT=9000 docker compose up)
+services:
+  web:
+    build: .
+    image: market-intelligence:latest
+    container_name: market-intelligence
+    ports:
+      - "${HOST_PORT:-8080}:8080"
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8080/healthz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
