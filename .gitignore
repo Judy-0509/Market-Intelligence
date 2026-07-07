@@ -19,3 +19,8 @@ brief_*.txt
 # python
 __pycache__/
 *.pyc
+.gstack/
+
+# dashboard (Phase 2 UI) — node_modules only; dashboard/dist/index.html is
+# committed intentionally as the in-house data-injection template.
+dashboard/node_modules/

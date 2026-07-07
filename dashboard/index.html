@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="data:," />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>스마트폰 TAM</title>
+    <!--
+      Data injection seam: an in-house Python script string-replaces the
+      content between the sentinel comments below with a real TamData
+      payload. The app reads window.__TAM_DATA__ when non-null, else it
+      falls back to the bundled sample data (see src/data/sample.ts).
+    -->
+    <script>/*TAM_DATA_START*/window.__TAM_DATA__=null/*TAM_DATA_END*/</script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

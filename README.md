@@ -7,10 +7,11 @@
 | Phase | 내용 | 상태 |
 |---|---|---|
 | 1 | 취합 자동화 + 시각화용 DB(SQLite) 구축 | 적재 파이프라인 구현 완료 (연간 라벨 규칙 update_tam.py로 확정) |
-| 2 | 조사기관 최신 전망 조회 — 정적 HTML 대시보드 | 대기 |
+| 2 | 조사기관 최신 전망 조회 — 정적 HTML 대시보드 | UI 뼈대 구현 (표), 데이터 연동 대기 |
 | 3 | 전망 자동 분석 및 워닝 | 대기 |
 
 연전망 엑셀 → SQLite 적재 파이프라인: [`pipeline/`](pipeline/README.md)
+TAM 대시보드 (Phase 2 UI): [`dashboard/`](dashboard/README.md)
 
 ## 현재 단계: 엑셀 구조 프로파일링 (Phase 1 사전조사)
 
