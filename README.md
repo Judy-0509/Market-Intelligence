@@ -12,10 +12,15 @@
 
 ## 현재 단계: 엑셀 구조 프로파일링 (Phase 1 사전조사)
 
-사내 PC에서 엑셀 구조를 JSON으로 추출합니다. **원본은 수정하지 않습니다.**
+사내 PC에서 엑셀 구조를 텍스트로 추출합니다. **원본은 수정하지 않습니다.**
+반출 채널의 글자수 제한에 대응하기 위해 기본은 경량 텍스트 브리프(`Get-ExcelBrief.ps1`)를 사용합니다.
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\tools\Get-ExcelProfile.ps1 -Path "엑셀폴더" -Recurse
+# 1단계: 시트 목록만 확인
+powershell -ExecutionPolicy Bypass -File .\tools\Get-ExcelBrief.ps1 -Path "엑셀폴더" -Recurse -ListOnly
+
+# 2단계: 원하는 시트만 텍스트로 추출
+powershell -ExecutionPolicy Bypass -File .\tools\Get-ExcelBrief.ps1 -Path "엑셀폴더" -Sheets "시트명"
 ```
 
 자세한 사용법·옵션·보안 체크리스트: [`tools/사내_실행가이드.md`](tools/사내_실행가이드.md)
