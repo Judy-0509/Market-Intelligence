@@ -1,6 +1,8 @@
 # data outputs — never commit real TAM data to this public repo
 excel_profile*.json
 profile_*.json
+excel_brief*.txt
+brief_*.txt
 *.xlsx
 *.xlsm
 *.xlsb

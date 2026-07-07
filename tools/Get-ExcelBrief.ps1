@@ -219,6 +219,17 @@ function Split-BriefLines([string[]]$lines, [int]$charLimit) {
     $content = ($finalChunks[$i] -join "`n")
     $parts += ($prefix + "`n" + $content)
   }
+
+  # Fail loudly if any part exceeds the limit. This happens when charLimit
+  # is so small that the "[p i/N]" prefix leaves no room for content; a
+  # silently non-conforming part must be impossible.
+  $partLenMax = 0
+  foreach ($p in $parts) {
+    if ($p.Length -gt $partLenMax) { $partLenMax = $p.Length }
+  }
+  if ($partLenMax -gt $charLimit) {
+    throw ("-MaxChars {0} is too small to fit the part-number prefix; increase it (try >= {1})" -f $charLimit, $partLenMax)
+  }
   return , $parts
 }
 
