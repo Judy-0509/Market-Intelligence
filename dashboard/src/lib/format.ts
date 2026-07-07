@@ -2,6 +2,8 @@
 // period decimal) since that convention is what analysts read numerals in
 // regardless of the surrounding Korean UI labels.
 
+import type { TamSourceKind } from "@/data/types"
+
 const NULL_DISPLAY = "–"
 
 /**
@@ -51,4 +53,23 @@ export function momColorClassName(value: number | null): string {
   const rounded = roundToDisplayed(value)
   if (rounded === 0) return ""
   return rounded > 0 ? "text-destructive" : "text-chart-2"
+}
+
+/**
+ * Subtle kind-based tint for a source's row-1 group header, token-based so
+ * it stays legible in both light and dark mode (no hex). This preset's
+ * --muted/--accent happen to sit almost flush with the card background
+ * (oklch 0.97 vs. 1), so a flat `bg-muted`/`bg-accent` wash is invisible —
+ * these use `-foreground` tokens (which carry real contrast against card in
+ * both themes) at low opacity for a true "tint", not a solid fill.
+ */
+export function sourceKindTintClassName(kind: TamSourceKind): string {
+  switch (kind) {
+    case "internal":
+      return "bg-primary/12"
+    case "affiliate":
+      return "bg-muted-foreground/12"
+    case "research":
+      return "bg-accent-foreground/18"
+  }
 }
