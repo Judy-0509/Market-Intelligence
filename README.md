@@ -13,6 +13,8 @@
 연전망 엑셀 → SQLite 적재 파이프라인: [`pipeline/`](pipeline/README.md)
 TAM 대시보드 (Phase 2 UI): [`dashboard/`](dashboard/README.md)
 
+사내 보고서 문체 학습·작성 스킬: [`writing-skills/`](writing-skills/README.md)
+
 ## 현재 단계: 엑셀 구조 프로파일링 (Phase 1 사전조사)
 
 사내 PC에서 엑셀 구조를 텍스트로 추출합니다. **원본은 수정하지 않습니다.**

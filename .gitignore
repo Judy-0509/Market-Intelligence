@@ -13,6 +13,9 @@ brief_*.txt
 # excel temp files
 ~$*
 
+# writing-skills: in-house style profile grows locally, never commit real content
+writing-skills/**/style-profile.local.md
+
 # omc / local state
 .omc/
 
@@ -24,3 +27,6 @@ __pycache__/
 # dashboard (Phase 2 UI) — node_modules only; dashboard/dist/index.html is
 # committed intentionally as the in-house data-injection template.
 dashboard/node_modules/
+
+# claude code local state (worktrees etc.)
+.claude/
