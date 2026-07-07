@@ -15,3 +15,7 @@ brief_*.txt
 
 # omc / local state
 .omc/
+
+# python
+__pycache__/
+*.pyc
