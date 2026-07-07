@@ -4,36 +4,51 @@
 
 const NULL_DISPLAY = "–"
 
+/**
+ * Round to the displayed precision (1 decimal), normalizing -0 to 0 so
+ * near-zero negatives (e.g. -0.0001) never render as "-0.0" and sign/color
+ * decisions match what the user actually sees.
+ */
+function roundToDisplayed(value: number): number {
+  const rounded = Math.round(value * 10) / 10
+  return rounded === 0 ? 0 : rounded // -0 === 0, so this also normalizes -0
+}
+
 /** "1,234.5" (1 decimal), or the null placeholder. */
 export function formatNumber(value: number | null): string {
   if (value === null) return NULL_DISPLAY
-  return value.toLocaleString("en-US", {
+  return roundToDisplayed(value).toLocaleString("en-US", {
     minimumFractionDigits: 1,
     maximumFractionDigits: 1,
   })
 }
 
-/** "+8.3%" / "-2.1%" (1 decimal, explicit sign), or the null placeholder. */
+/** "+8.3%" / "-2.1%" (1 decimal, explicit sign), "0.0%" when it rounds to zero. */
 export function formatYoy(value: number | null): string {
   if (value === null) return NULL_DISPLAY
-  const pct = value * 100
-  const sign = pct >= 0 ? "+" : ""
+  const pct = roundToDisplayed(value * 100)
+  const sign = pct > 0 ? "+" : ""
   return `${sign}${pct.toFixed(1)}%`
 }
 
-/** "+12.3" / "-4.0" (signed absolute delta), or the null placeholder. */
+/** "+12.3" / "-4.0" (signed absolute delta), "0.0" when it rounds to zero. */
 export function formatMom(value: number | null): string {
   if (value === null) return NULL_DISPLAY
-  const sign = value >= 0 ? "+" : ""
-  return `${sign}${value.toFixed(1)}`
+  const rounded = roundToDisplayed(value)
+  const sign = rounded > 0 ? "+" : ""
+  return `${sign}${rounded.toFixed(1)}`
 }
 
 /**
  * Korean financial color convention: positive = red, negative = blue.
  * Uses theme tokens only (destructive for red, chart-2 for blue) so it
  * stays readable in both light and dark mode.
+ * The sign is judged at the DISPLAYED precision: a value that renders as
+ * "0.0" (e.g. 0.04 or -0.0001) stays neutral instead of colored.
  */
 export function momColorClassName(value: number | null): string {
-  if (value === null || value === 0) return ""
-  return value > 0 ? "text-destructive" : "text-chart-2"
+  if (value === null) return ""
+  const rounded = roundToDisplayed(value)
+  if (rounded === 0) return ""
+  return rounded > 0 ? "text-destructive" : "text-chart-2"
 }
