@@ -2,7 +2,6 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { TamTable } from "@/components/tam-table"
 import { sourceKindTintClassName } from "@/lib/format"
-import { cn } from "@/lib/utils"
 import { sampleTamData } from "@/data/sample"
 import type { TamData, TamSourceKind } from "@/data/types"
 
@@ -73,7 +72,7 @@ export function App() {
                 <Badge
                   key={item.kind}
                   variant="outline"
-                  className={cn(sourceKindTintClassName(item.kind))}
+                  className={sourceKindTintClassName(item.kind)}
                 >
                   {item.label}
                 </Badge>
