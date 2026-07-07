@@ -1,7 +1,11 @@
 """연전망(Smartphone SET TAM) 엑셀 -> SQLite 적재 CLI.
 
 사용법:
-    python load_forecast.py --source "<연전망.xlsx>" --sheet "6월 연전망용" --vintage 2026-06 [--db tam.db]
+    python load_forecast.py --file "<연전망.xlsx>" --sheet "6월 연전망용" --vintage 2026-06 \
+        [--source S.LSI] [--db tam.db]
+
+--source는 이 예측치의 출처/기관을 나타낸다 (기본값 "S.LSI"). 관계사/조사기관 전용
+파서가 생기기 전까지는 기본값을 그대로 사용한다.
 
 소스 파일 구조 (B3:BA18 범위, 사내 EDM 다운로드 기준):
   - 4행 = 헤더 (Vendor + 분기 라벨 + 연간 라벨)
@@ -232,13 +236,27 @@ def validate_vintage(vintage: str) -> None:
         raise PipelineError(f"Invalid --vintage month: {vintage!r} (month must be 01-12)")
 
 
+def validate_source(source: str) -> str:
+    """--source가 공백뿐인 문자열이 아닌지 검증하고, strip한 값을 반환한다."""
+    stripped = source.strip()
+    if not stripped:
+        raise PipelineError(f"Invalid --source: {source!r} (must not be empty)")
+    return stripped
+
+
 def parse_args(argv=None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Load a monthly forecast Excel file into the TAM SQLite DB."
     )
-    parser.add_argument("--source", required=True, help="Path to the forecast .xlsx file")
+    parser.add_argument("--file", required=True, help="Path to the forecast .xlsx file")
     parser.add_argument("--sheet", required=True, help="Sheet name (Korean sheet name from the source workbook)")
     parser.add_argument("--vintage", required=True, help="Forecast vintage, format YYYY-MM")
+    parser.add_argument(
+        "--source",
+        default="S.LSI",
+        help="Forecast source/institution name (default: S.LSI). Use the default until "
+        "per-institution parsers exist for other institutions.",
+    )
     parser.add_argument("--db", default="tam.db", help="SQLite DB path (default: tam.db)")
     return parser.parse_args(argv)
 
@@ -248,10 +266,11 @@ def main(argv=None) -> int:
 
     try:
         validate_vintage(args.vintage)
-        rows = extract_forecast(args.source, args.sheet)
+        source = validate_source(args.source)
+        rows = extract_forecast(args.file, args.sheet)
         conn = tam_db.init_db(Path(args.db))
         try:
-            tam_db.upsert_vintage(conn, args.vintage, rows, source_file=str(args.source))
+            tam_db.upsert_vintage(conn, source, args.vintage, rows, source_file=str(args.file))
         finally:
             conn.close()
     except PipelineError as exc:
@@ -264,7 +283,7 @@ def main(argv=None) -> int:
     vendor_count = len({vendor for vendor, _, _ in rows})
     years = sorted({year for _, year, _ in rows})
     total_2026 = next((value for vendor, year, value in rows if vendor == "Total" and year == 2026), None)
-    _safe_print(f"Loaded vintage {args.vintage}: {vendor_count} vendors, years {years}")
+    _safe_print(f"Loaded vintage {args.vintage} (source: {source}): {vendor_count} vendors, years {years}")
     _safe_print(f"Sanity check - Total/2026: {total_2026}")
     return 0
 
