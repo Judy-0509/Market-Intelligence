@@ -1,0 +1,15 @@
+# data outputs — never commit real TAM data to this public repo
+excel_profile*.json
+profile_*.json
+*.xlsx
+*.xlsm
+*.xlsb
+*.xls
+*.db
+*.sqlite
+
+# excel temp files
+~$*
+
+# omc / local state
+.omc/
